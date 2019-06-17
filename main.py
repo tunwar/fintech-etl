@@ -1,12 +1,13 @@
-import gmplot
+
+import folium
 import json
 from requests_oauthlib import OAuth2Session
 
 c_dict = {}
 currencies = {"GBP": "£", "USD": "$", "EUR": "E"}
-category_colour = {"shopping": "aliceblue", "groceries": "beige", "eating_out": "red", "entertainment": "darkgray",
-                   "general": "goldenrod", "cash": "lavender", "transport": "maroon", "bills": "ivory",
-                   "personal_care": "lime", "holidays": "yellowgreen"}
+category_colour = {"shopping": "red", "groceries": "blue", "eating_out": "green", "entertainment": "purple",
+                   "general": "lightred", "cash": "beige", "transport": "darkblue", "bills": "darkgreen",
+                   "personal_care": "cadetblue", "holidays": "darkpurple"}
 with open(".env") as f:
     content = f.readlines()
 
@@ -28,9 +29,16 @@ response = sesh.get(url).json()
 lats = []
 longs = []
 cat_list = []
+schemes = []
 trannies = response["transactions"]
-gmap = gmplot.GoogleMapPlotter(51.583233, -0.101466, 10)
+m = folium.Map(
+    location=[51.583233, -0.101466],
+    zoom_start=12,
+    tiles='Stamen Terrain'
+)
 for tran in trannies:
+
+    schemes.append(tran['is_load'])
     amount = int(tran['amount']) / -100
     currency = currencies.get(tran['currency'])
     if 'merchant' in tran:
@@ -38,6 +46,8 @@ for tran in trannies:
         mer = tran["merchant"]
         if mer is not None:
             name = mer['name']
+            if name == "Selale Restaurant":
+                print(tran)
             category = mer['category']
             cat_list.append(category)
             if 'address' in mer:
@@ -46,12 +56,7 @@ for tran in trannies:
                     lat = add["latitude"]
                     long =add["longitude"]
                     pin_words = f'{name} - {category} - {currency}{amount:.2f}'
-                    gmap.marker(lat,long, category_colour.get(category),title=pin_words)
+                    folium.Marker(location=[lat,long],zoom_start=12,popup=pin_words,
+                                  icon=folium.Icon(color=category_colour.get(category))).add_to(m)
 
-print(list(dict.fromkeys(cat_list)))
-
-# gmap.heatmap(lats, longs)
-
-
-
-gmap.draw("my_map.html")
+m.save("my_map_2.html")
