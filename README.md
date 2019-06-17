@@ -1,5 +1,5 @@
 # fintech-vis
-A project to better visualise spending personal spending habits accross accounts with `challenger banks` such as Monzo and Revolut.
+A project to better visualise personal spending habits across accounts with `challenger banks` such as Monzo and Revolut.
 
 ## Plan
 - Initial exploration of Monzo API's - 
